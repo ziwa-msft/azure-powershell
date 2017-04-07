@@ -14,7 +14,6 @@
 
 using Microsoft.Azure.Management.Sql.LegacySdk.Models;
 using System.Collections.Generic;
-using Microsoft.Azure.Commands.ResourceManager.Common.Tags;
 
 namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
 {
@@ -136,13 +135,12 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
             FailoverGroupName = failoverGroup.Name;
             Id = failoverGroup.Id;
             Location = failoverGroup.Location;
-            FailoverGroupReadOnlyEndpoint = failoverGroup.Properties.ReadOnlyEndpoint;
-            FailoverGroupReadWriteEndpoint = failoverGroup.Properties.ReadWriteEndpoint;
+            ReadWriteFailoverPolicy = failoverGroup.Properties.ReadWriteEndpoint.FailoverPolicy;
+            ReadOnlyFailoverPolicy = failoverGroup.Properties.ReadOnlyEndpoint.FailoverPolicy;
             PartnerServers = failoverGroup.Properties.PartnerServers;
             Databases = failoverGroup.Properties.Databases;
             ReplicationRole = failoverGroup.Properties.ReplicationRole;
             ReplicationState = failoverGroup.Properties.ReplicationState;
-            Tags = TagsConversionHelper.CreateTagDictionary(TagsConversionHelper.CreateTagHashtable(failoverGroup.Tags), false);
         }
     }
 }

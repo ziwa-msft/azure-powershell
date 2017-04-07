@@ -67,8 +67,7 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Cmdlet
         [Parameter(Mandatory = false,
             HelpMessage = "The window of grace period that we tolerate with data loss during a failover operation for the failover group.")]
         [ValidateNotNullOrEmpty]
-        [Obsolete("This parameter will be deprecated in the next release.")]
-        public int GracePeriodWithDataLossHour { get; set; }
+        public int GracePeriodWithDataLossHours { get; set; }
 
         /// <summary>
         /// Gets or sets the failover policy for read only endpoint of theSql Azure Failover Group.
@@ -77,15 +76,6 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Cmdlet
             HelpMessage = "The failover policy for read only endpoint of the failover group.")]
         [ValidateNotNullOrEmpty]
         public AllowReadOnlyFailoverToPrimary AllowReadOnlyFailoverToPrimary { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tag associated with the Azure SQL Database Failover Group
-        /// </summary>
-        /// 
-        [Obsolete("This parameter will be deprecated in the next release.")]
-        [Parameter(Mandatory = false,
-            HelpMessage = "The tag to associate with the Azure SQL Database Failover Group")]
-        public Hashtable Tag { get; set; }
 
         /// <summary>
         /// Get the entities from the service
@@ -127,18 +117,15 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Cmdlet
             List<AzureSqlFailoverGroupModel> newEntity = new List<AzureSqlFailoverGroupModel>();
             newEntity.Add(new AzureSqlFailoverGroupModel()
             {
-#pragma warning disable 0618
                 ResourceGroupName = ResourceGroupName,
                 ServerName = ServerName,
-                Tags = TagsConversionHelper.CreateTagDictionary(Tag, validate: true),
                 Location = location,
                 FailoverGroupName = FailoverGroupName,
                 PartnerResourceGroupName = MyInvocation.BoundParameters.ContainsKey("PartnerResourceGroupName") ? PartnerResourceGroupName : ResourceGroupName,
                 PartnerServerName = PartnerServerName,
-                ReadWriteFailoverPolicy = FailoverPolicy.ToString(),
-                FailoverWithDataLossGracePeriodHours = GracePeriodWithDataLossHour,
-                ReadOnlyFailoverPolicy = AllowReadOnlyFailoverToPrimary.ToString()
-#pragma warning restore 0618
+                ReadWriteFailoverPolicy  = MyInvocation.BoundParameters.ContainsKey("FailoverPolicy") ? FailoverPolicy.ToString() : FailoverPolicy.Manual.ToString(),
+                FailoverWithDataLossGracePeriodHours = GracePeriodWithDataLossHours,
+                ReadOnlyFailoverPolicy = MyInvocation.BoundParameters.ContainsKey("AllowReadOnlyFailoverToPrimary") ? AllowReadOnlyFailoverToPrimary.ToString() : AllowReadOnlyFailoverToPrimary.Disabled.ToString(),
             });
             return newEntity;
         }
