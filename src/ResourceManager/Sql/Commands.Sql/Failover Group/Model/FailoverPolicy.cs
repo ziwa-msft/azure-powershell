@@ -18,15 +18,14 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
     /// </summary>
     public enum FailoverPolicy
     {
+        /// <summary>
+        /// Failover Group Failover policy is automatic
+        /// </summary>
+        Automatic,
 
         /// <summary>
         /// Failover Group Failover policy is manual
         /// </summary>
         Manual,
-
-        /// <summary>
-        /// Failover Group Failover policy is automatic
-        /// </summary>
-        Automatic,
     }
 }

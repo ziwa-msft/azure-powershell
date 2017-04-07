@@ -95,7 +95,7 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
         /// <param name="serverName">The name of the Azure Sql Database Server</param>
         /// <param name="model">The input parameters for the create/update operation</param>
         /// <returns>The upserted Azure Sql Database FailoverGroup</returns>
-        internal AzureSqlFailoverGroupModel UpsertFailoverGroup(AzureSqlFailoverGroupInputModel model)
+        internal AzureSqlFailoverGroupModel UpsertFailoverGroup(AzureSqlFailoverGroupModel model)
         {
             List < FailoverGroupPartnerServer >  partnerServers = new List<FailoverGroupPartnerServer>();
             FailoverGroupPartnerServer partnerServer = new FailoverGroupPartnerServer();
@@ -107,11 +107,11 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
             partnerServers.Add(partnerServer);
 
             ReadOnlyEndpoint readOnlyEndpoint = new ReadOnlyEndpoint();
-            readOnlyEndpoint.FailoverPolicy = model.ReadOnlyFailoverPolicy == null ? AllowReadOnlyFailoverToPrimary.Disabled.ToString() : model.ReadOnlyFailoverPolicy;
+            readOnlyEndpoint.FailoverPolicy = model.ReadOnlyFailoverPolicy;
             ReadWriteEndpoint readWriteEndpoint = new ReadWriteEndpoint();
-            readWriteEndpoint.FailoverPolicy = model.ReadWriteFailoverPolicy == null ? FailoverPolicy.Manual.ToString() : model.ReadWriteFailoverPolicy;
+            readWriteEndpoint.FailoverPolicy = model.ReadWriteFailoverPolicy;
 
-            if (model.FailoverWithDataLossGracePeriodHours.HasValue && !string.Equals(model.ReadWriteFailoverPolicy, FailoverPolicy.Manual.ToString() ))
+            if (model.FailoverWithDataLossGracePeriodHours.HasValue && !string.Equals(model.ReadWriteFailoverPolicy, FailoverPolicy.Manual.ToString()))
             {
                 readWriteEndpoint.FailoverWithDataLossGracePeriodMinutes = model.FailoverWithDataLossGracePeriodHours * 60;
             }
@@ -123,6 +123,7 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
             var resp = Communicator.CreateOrUpdate(model.ResourceGroupName, model.ServerName, model.FailoverGroupName, Util.GenerateTracingId(), new FailoverGroupCreateOrUpdateParameters()
             {
                 Location = model.Location,
+                Tags = model.Tags,
                 Properties = new FailoverGroupCreateOrUpdateProperties()
                 {
                     PartnerServers = partnerServers,
@@ -144,30 +145,25 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
         internal AzureSqlFailoverGroupModel PatchUpdateFailoverGroup(AzureSqlFailoverGroupModel model)
         {
             ReadOnlyEndpoint readOnlyEndpoint = new ReadOnlyEndpoint();
-            readOnlyEndpoint.FailoverPolicy = model.ReadOnlyFailoverPolicy == null ? AllowReadOnlyFailoverToPrimary.Disabled.ToString() : model.ReadOnlyFailoverPolicy;
+            readOnlyEndpoint.FailoverPolicy = model.ReadOnlyFailoverPolicy;
 
             ReadWriteEndpoint readWriteEndpoint = new ReadWriteEndpoint();
-            readWriteEndpoint.FailoverPolicy = model.ReadWriteFailoverPolicy == null ? FailoverPolicy.Manual.ToString() : model.ReadWriteFailoverPolicy;
+            readWriteEndpoint.FailoverPolicy = model.ReadWriteFailoverPolicy;
 
             if (!string.Equals(model.ReadWriteFailoverPolicy, FailoverPolicy.Manual.ToString()))
             {
-                if (!model.FailoverWithDataLossGracePeriodHours.HasValue)
-                {
-                    readWriteEndpoint.FailoverWithDataLossGracePeriodMinutes = 0;
-                }
-                else
-                {
-                    readWriteEndpoint.FailoverWithDataLossGracePeriodMinutes = model.FailoverWithDataLossGracePeriodHours * 60;
-                }
+                readWriteEndpoint.FailoverWithDataLossGracePeriodMinutes = model.FailoverWithDataLossGracePeriodHours * 60;
             }
             else
             {
                 readWriteEndpoint.FailoverWithDataLossGracePeriodMinutes = null;
             }
-            
+
+
             var resp = Communicator.PatchUpdate(model.ResourceGroupName, model.ServerName, model.FailoverGroupName, Util.GenerateTracingId(), new FailoverGroupPatchUpdateParameters()
             {
                 Location = model.Location,
+                Tags = model.Tags,
                 Properties = new FailoverGroupPatchUpdateProperties()
                 {
                     ReadOnlyEndpoint = readOnlyEndpoint,
@@ -217,6 +213,7 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
             var resp = Communicator.PatchUpdate(resourceGroupName, serverName, failoverGroupName, Util.GenerateTracingId(), new FailoverGroupPatchUpdateParameters()
             {
                 Location = model.Location,
+                Tags = model.Tags,
                 Properties = new FailoverGroupPatchUpdateProperties()
                 {
                     Databases = model.Databases,
@@ -232,6 +229,8 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
         /// <param name="resourceGroupName">The name of the Resource Group containing the primary database</param>
         /// <param name="serverName">The name of the Azure SQL Server containing the primary database</param>
         /// <param name="databaseName">The name of primary database</param>
+        /// <param name="partnerResourceGroupName">The name of the Resource Group containing the secondary database</param>
+        /// <param name="partnerServerName">The name of the Azure SQL Server containing the secondary database</param>
         /// <param name="allowDataLoss">Whether the failover operation will allow data loss</param>
         /// <returns>The Azure SQL Database ReplicationLink object</returns>
         internal AzureSqlFailoverGroupModel Failover(string resourceGroupName, string serverName, string failoverGroupName, bool allowDataLoss)
@@ -273,8 +272,6 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
         {
             AzureSqlFailoverGroupModel model = new AzureSqlFailoverGroupModel();
 
-            model.Id = failoverGroup.Id;
-            model.Location = failoverGroup.Location;
             model.ResourceGroupName = resourceGroup;
             model.ServerName = serverName;
             model.FailoverGroupName = failoverGroup.Name;
@@ -286,6 +283,9 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
             model.PartnerServers = failoverGroup.Properties.PartnerServers;
             model.FailoverWithDataLossGracePeriodHours = failoverGroup.Properties.ReadWriteEndpoint.FailoverWithDataLossGracePeriodMinutes == null ?
                                                         null : failoverGroup.Properties.ReadWriteEndpoint.FailoverWithDataLossGracePeriodMinutes / 60;
+
+            model.Tags = TagsConversionHelper.CreateTagDictionary(TagsConversionHelper.CreateTagHashtable(failoverGroup.Tags), false);
+            model.Location = failoverGroup.Location;;
 
             return model;
         }

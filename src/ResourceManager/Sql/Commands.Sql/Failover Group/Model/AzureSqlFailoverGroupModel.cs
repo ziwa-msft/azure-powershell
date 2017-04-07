@@ -40,9 +40,29 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
         public string FailoverGroupName { get; set; }
 
         /// <summary>
+        /// Gets or sets the read-write endpoint
+        /// </summary>
+        public ReadWriteEndpoint FailoverGroupReadWriteEndpoint { get; set; }
+
+        /// <summary>
+        /// Gets or sets the read-only endpoint
+        /// </summary>
+        public ReadOnlyEndpoint FailoverGroupReadOnlyEndpoint { get; set; }
+
+        /// <summary>
         /// Gets or sets the partner servers
         /// </summary>
         public IList<FailoverGroupPartnerServer> PartnerServers { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the partner resource group name
+        /// </summary>
+        public string PartnerResourceGroupName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the partner server name
+        /// </summary>
+        public string PartnerServerName { get; set; }
 
         /// <summary>
         /// Gets or sets the database IDs
@@ -85,6 +105,16 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
         public string Location { get; set; }
 
         /// <summary>
+        /// Gets or sets the location of the failover group
+        /// </summary>
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// Gets or sets the tags associated with the Failover Group.
+        /// </summary>
+        public Dictionary<string, string> Tags { get; set; }
+
+        /// <summary>
         /// Default Constructor
         /// </summary>
         public AzureSqlFailoverGroupModel()
@@ -105,6 +135,8 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
             FailoverGroupName = failoverGroup.Name;
             Id = failoverGroup.Id;
             Location = failoverGroup.Location;
+            ReadWriteFailoverPolicy = failoverGroup.Properties.ReadWriteEndpoint.FailoverPolicy;
+            ReadOnlyFailoverPolicy = failoverGroup.Properties.ReadOnlyEndpoint.FailoverPolicy;
             PartnerServers = failoverGroup.Properties.PartnerServers;
             Databases = failoverGroup.Properties.Databases;
             ReplicationRole = failoverGroup.Properties.ReplicationRole;

@@ -18,7 +18,17 @@
         - Additional information about change #1
 -->
 ## Current Release
+* Depracating Unused Parameters on Azure Failover Group Cmdlets
+	- Deprecated Tags, GracePeriodWithDatalossHour and PartnerResourceGroupName/PartnerServerName
+	- Change Default ReadOnlyEndpoint Failover Policy to be ‘Disabled’
+	- Change Default ReadWriteEndpoint Failover Policy to be ‘Manual’
+	- Change Swith-AzureRmSqlDatabaseFailoverGroup operation to be syncrhonous from asyncrhonous 
 
+## Version 2.8.0
+* Bug fixes on Azure Failover Group Cmdlets
+	- Fix for operation polling
+	- Fix GracePeriodWithDataLossHour value when setting FailoverPolicy to Manual
+	- Adding obsolete warnings to upcoming parameter changes.
 ## Version 2.7.0
 * Bug fix - Auditing and Threat Detection cmdlets now return a meangfull error instead of null refernce error. 
 * Updating Transparent Data Encryption (TDE) with Bring Your Own Key (BYOK) support cmdlets for updated API.
