@@ -284,7 +284,8 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Services
             model.FailoverWithDataLossGracePeriodHours = failoverGroup.Properties.ReadWriteEndpoint.FailoverWithDataLossGracePeriodMinutes == null ?
                                                         null : failoverGroup.Properties.ReadWriteEndpoint.FailoverWithDataLossGracePeriodMinutes / 60;
 
-            model.Tags = TagsConversionHelper.CreateTagDictionary(TagsConversionHelper.CreateTagHashtable(failoverGroup.Tags), false);
+
+            model.Id = failoverGroup.Id;
             model.Location = failoverGroup.Location;;
 
             return model;

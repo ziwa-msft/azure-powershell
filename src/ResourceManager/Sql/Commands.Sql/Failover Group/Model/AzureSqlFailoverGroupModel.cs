@@ -137,6 +137,7 @@ namespace Microsoft.Azure.Commands.Sql.FailoverGroup.Model
             Location = failoverGroup.Location;
             ReadWriteFailoverPolicy = failoverGroup.Properties.ReadWriteEndpoint.FailoverPolicy;
             ReadOnlyFailoverPolicy = failoverGroup.Properties.ReadOnlyEndpoint.FailoverPolicy;
+            FailoverWithDataLossGracePeriodHours = failoverGroup.Properties.ReadWriteEndpoint.FailoverWithDataLossGracePeriodMinutes / 60;
             PartnerServers = failoverGroup.Properties.PartnerServers;
             Databases = failoverGroup.Properties.Databases;
             ReplicationRole = failoverGroup.Properties.ReplicationRole;
